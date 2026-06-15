@@ -1,25 +1,44 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from '../core/auth/AuthContext';
 import LoginScreen from '../domains/auth/LoginScreen';
 import SignupScreen from '../domains/auth/SignupScreen';
-import WalletScreen from '../domains/wallet/WalletScreen';
-import TicketPurchaseScreen from '../domains/ticketing/TicketPurchaseScreen';
-import QRDisplayScreen from '../domains/ticketing/QRDisplayScreen';
-import LiveMapScreen from '../domains/transit/LiveMapScreen';
+import PassengerTabNavigator from './PassengerTabNavigator';
+import DriverNavigator from './DriverNavigator';
+import ControllerNavigator from './ControllerNavigator';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
+  const { isAuthenticated, loading, role } = useAuth();
+
+  if (loading) {
     return (
-        <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Wallet" component={WalletScreen} options={{ title: 'Mon Wallet' }} />
-            <Stack.Screen name="TicketPurchase" component={TicketPurchaseScreen} options={{ title: 'Acheter un Billet' }} />
-            <Stack.Screen name="QRDisplay" component={QRDisplayScreen} options={{ title: 'Mon Titre de Transport' }} />
-            <Stack.Screen name="LiveMap" component={LiveMapScreen} options={{ title: 'Tracking en Direct' }} />
-        </Stack.Navigator>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f6fa' }}>
+        <ActivityIndicator size="large" color="#00a8ff" />
+      </View>
     );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  switch (role) {
+    case 'DRIVER':
+      return <DriverNavigator />;
+    case 'CONTROLLER':
+      return <ControllerNavigator />;
+    case 'PASSENGER':
+    default:
+      return <PassengerTabNavigator />;
+  }
 };
 
 export default AppNavigator;
