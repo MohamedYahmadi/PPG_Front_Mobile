@@ -35,7 +35,7 @@ const LineDetailScreen = ({ route, navigation }) => {
       <View style={styles.header}>
         <Text style={styles.lineName}>{line.line?.name || `Route #${line.id}`}</Text>
         <Text style={styles.route}>
-          {line.start_station_name || 'Start'} → {line.end_station_name || 'End'}
+          {line.start_station?.name || 'Start'} → {line.end_station?.name || 'End'}
         </Text>
       </View>
 
@@ -52,10 +52,10 @@ const LineDetailScreen = ({ route, navigation }) => {
               {index < stations.length - 1 && <View style={styles.line} />}
             </View>
             <View style={styles.stationInfo}>
-              <Text style={styles.stationName}>{item.station_name || item.name || `Station ${index + 1}`}</Text>
+              <Text style={styles.stationName}>{item.station?.name || `Station ${index + 1}`}</Text>
               <Text style={styles.stationMeta}>
                 Order #{item.order_number || index + 1}
-                {item.time_to_next ? ` · ${item.time_to_next} min to next` : ''}
+                {item.time_to_next_station ? ` · ${item.time_to_next_station} min to next` : ''}
               </Text>
             </View>
           </View>

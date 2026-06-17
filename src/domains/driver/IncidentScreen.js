@@ -45,10 +45,10 @@ const IncidentScreen = ({ navigation }) => {
     setSubmitting(true);
     try {
       await api.post('/transit/driver/incidents/', {
-        incident_type: selectedType,
+        type: selectedType,
         description: description.trim(),
-        latitude: location?.latitude || 36.8065,
-        longitude: location?.longitude || 10.1815,
+        location_lat: location?.latitude || 36.8065,
+        location_lng: location?.longitude || 10.1815,
       });
       Alert.alert('Reported', 'Incident has been reported successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },

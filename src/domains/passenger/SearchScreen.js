@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Alert,
 } from 'react-native';
+import * as Location from 'expo-location';
 import api from '../../core/api/client';
 
 const SearchScreen = ({ navigation }) => {
@@ -13,13 +14,18 @@ const SearchScreen = ({ navigation }) => {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const res = await api.get('/transit/user/search-bus/', {
-        params: { q: query.trim() },
-      });
-      setResults(res.data.results || res.data || []);
+      const params = { q: query.trim() };
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const pos = await Location.getCurrentPositionAsync({});
+        params.lat = pos.coords.latitude;
+        params.lng = pos.coords.longitude;
+      }
+      const res = await api.get('/transit/user/search-bus/', { params });
+      setResults(res.data.trajets || res.data.results || res.data || []);
     } catch (err) {
       if (err.response?.status === 400) {
-        Alert.alert('Search Error', 'Please provide a location. Try using the map view.');
+        Alert.alert('Search Error', 'Could not determine your location. Try using the map view.');
         navigation.navigate('MapView');
       } else {
         Alert.alert('Error', 'Search failed. Please try again.');
@@ -32,16 +38,16 @@ const SearchScreen = ({ navigation }) => {
   const renderResult = ({ item }) => (
     <View style={styles.resultCard}>
       <View style={styles.resultHeader}>
-        <View style={[styles.badge, { backgroundColor: item.line?.color || '#00a8ff' }]}>
-          <Text style={styles.badgeText}>{item.line?.short_name || '?'}</Text>
+        <View style={[styles.badge, { backgroundColor: item.line?.color_code || '#00a8ff' }]}>
+          <Text style={styles.badgeText}>{item.line?.name?.charAt(0) || '?'}</Text>
         </View>
-        <Text style={styles.resultTitle}>{item.line?.name || `Route`}</Text>
+        <Text style={styles.resultTitle}>{item.line?.name || item.name || `Route`}</Text>
       </View>
       <Text style={styles.resultDetail}>
-        {item.start_station_name || '?'} → {item.end_station_name || '?'}
+        {item.start_station?.name || '?'} → {item.end_station?.name || '?'}
       </Text>
       <Text style={styles.resultTime}>
-        {item.departure_time || 'N/A'} - Est. {item.estimated_arrival || 'N/A'}
+        {item.gtfs_route_id ? `Route: ${item.gtfs_route_id}` : 'N/A'}
       </Text>
     </View>
   );

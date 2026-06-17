@@ -36,19 +36,19 @@ const LinesScreen = ({ navigation }) => {
       style={styles.card}
       onPress={() => navigation.navigate('LineDetail', { line: item })}
     >
-      <View style={[styles.colorBar, { backgroundColor: item.line?.color || '#00a8ff' }]} />
+      <View style={[styles.colorBar, { backgroundColor: item.line?.color_code || '#00a8ff' }]} />
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <Text style={styles.lineName}>{item.line?.name || `Route #${item.id}`}</Text>
-          <Text style={[styles.lineBadge, { backgroundColor: item.line?.color || '#00a8ff' }]}>
-            {item.line?.short_name || item.id}
+          <Text style={[styles.lineBadge, { backgroundColor: item.line?.color_code || '#00a8ff' }]}>
+            {item.line?.name?.[0] || '?'}
           </Text>
         </View>
         <Text style={styles.routeDesc}>
-          {item.start_station_name || 'Start'} → {item.end_station_name || 'End'}
+          {item.start_station?.name || 'Start'} → {item.end_station?.name || 'End'}
         </Text>
         <Text style={styles.stopsCount}>
-          {item.stations_count || '?'} stations · Est. {item.estimated_duration || 'N/A'}
+          {item.stations?.length || '?'} stations
         </Text>
       </View>
     </TouchableOpacity>

@@ -31,7 +31,9 @@ const GPSLiveScreen = ({ navigation }) => {
         if (tripIdVal) {
           liveService.current = new LiveMapService(tripIdVal);
         }
-      } catch {}
+      } catch (e) {
+        console.warn('Failed to fetch current session:', e);
+      }
       setLoading(false);
     })();
     return () => {
@@ -78,9 +80,9 @@ const GPSLiveScreen = ({ navigation }) => {
       if (location) {
         try {
           await api.post(`/transit/driver/trips/${tripId}/gps/`, {
-            latitude: location.latitude,
-            longitude: location.longitude,
-            speed: 0,
+            lat: location.latitude,
+            lng: location.longitude,
+            speed_kmh: 0,
             heading: 0,
           });
         } catch {}

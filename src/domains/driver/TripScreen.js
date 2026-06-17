@@ -13,9 +13,11 @@ const TripScreen = ({ navigation }) => {
   const fetchSession = async () => {
     try {
       const sessionRes = await api.get('/transit/driver/current/');
-      setSession(sessionRes.data);
-      if (sessionRes.data?.trajet_id) {
-        const trajetRes = await api.get(`/transit/trajets/${sessionRes.data.trajet_id}/`);
+      const session = sessionRes.data;
+      setSession(session);
+      const trajetId = session?.trajet?.id;
+      if (trajetId) {
+        const trajetRes = await api.get(`/transit/trajets/${trajetId}/`);
         setStations(trajetRes.data.stations || []);
       }
     } catch (err) {
@@ -31,9 +33,19 @@ const TripScreen = ({ navigation }) => {
   }, [navigation]);
 
   const handleUpdateStation = async () => {
+    const currentIdx = stations.findIndex(
+      (s) => s.station?.name === session?.current_station?.name || s.station?.id === session?.current_station?.id
+    );
+    const nextStation = stations[currentIdx + 1];
+    if (!nextStation?.station?.id) {
+      Alert.alert('No Next Station', 'You are at the final destination');
+      return;
+    }
     setUpdating(true);
     try {
-      await api.post('/transit/driver/update-station/', {});
+      await api.post('/transit/driver/update-station/', {
+        station_id: nextStation.station.id,
+      });
       Alert.alert('Success', 'Moved to next station');
       fetchSession();
     } catch (err) {
@@ -84,7 +96,7 @@ const TripScreen = ({ navigation }) => {
   }
 
   const currentStationIndex = stations.findIndex(
-    (s) => s.station_name === session.current_station_name || s.id === session.current_station_id
+    (s) => s.station?.name === session?.current_station?.name || s.station?.id === session?.current_station?.id
   );
 
   return (
@@ -135,11 +147,11 @@ const TripScreen = ({ navigation }) => {
                       isCurrent && styles.stationNameCurrent,
                     ]}
                   >
-                    {station.station_name || station.name || `Station ${index + 1}`}
+                    {station.station?.name || `Station ${index + 1}`}
                   </Text>
                   {isCurrent && <Text style={styles.currentBadge}>CURRENT</Text>}
-                  {station.time_to_next && (
-                    <Text style={styles.stationTime}>{station.time_to_next} min to next</Text>
+                  {station.time_to_next_station && (
+                    <Text style={styles.stationTime}>{station.time_to_next_station} min to next</Text>
                   )}
                 </View>
               </View>

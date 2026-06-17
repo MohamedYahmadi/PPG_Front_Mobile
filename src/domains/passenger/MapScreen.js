@@ -72,8 +72,8 @@ const MapScreen = ({ navigation }) => {
           <Marker
             key={v.id || i}
             coordinate={{
-              latitude: parseFloat(v.latitude) || 36.8065,
-              longitude: parseFloat(v.longitude) || 10.1815,
+              latitude: parseFloat(v.lat) || 36.8065,
+              longitude: parseFloat(v.lng) || 10.1815,
             }}
             title={v.plate_number || `Vehicle`}
             description={`Speed: ${v.speed || 'N/A'} km/h`}

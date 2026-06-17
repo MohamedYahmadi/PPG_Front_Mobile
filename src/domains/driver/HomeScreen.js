@@ -56,12 +56,13 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleEndTrip = async () => {
-    if (!currentSession?.current_trip_id) {
+    const tripId = currentSession?.current_trip_id;
+    if (!tripId) {
       Alert.alert('No Active Trip', 'There is no active trip to end');
       return;
     }
     try {
-      await api.post(`/transit/driver/trips/${currentSession.current_trip_id}/end/`, {});
+      await api.post(`/transit/driver/trips/${tripId}/end/`, {});
       Alert.alert('Success', 'Trip completed');
       fetchData();
     } catch (err) {
@@ -93,17 +94,17 @@ const HomeScreen = ({ navigation }) => {
         <Text style={[styles.statusValue, { color: currentSession ? '#4cd137' : '#7f8fa6' }]}>
           {currentSession ? 'Active' : 'No Active Session'}
         </Text>
-        {currentSession && (
-          <>
-            <Text style={styles.sessionDetail}>Line: {currentSession.line_name || 'N/A'}</Text>
-            <Text style={styles.sessionDetail}>
-              Vehicle: {currentSession.plate_number || currentSession.vehicle_id || 'N/A'}
-            </Text>
-            <Text style={styles.sessionDetail}>
-              Station: {currentSession.current_station_name || 'N/A'}
-            </Text>
-          </>
-        )}
+            {currentSession && (
+              <>
+                <Text style={styles.sessionDetail}>Line: {currentSession.line_name || currentSession.trajet?.line?.name || 'N/A'}</Text>
+                <Text style={styles.sessionDetail}>
+                  Vehicle: {currentSession.plate_number || 'N/A'}
+                </Text>
+                <Text style={styles.sessionDetail}>
+                  Station: {currentSession.current_station_name || currentSession.current_station?.name || 'N/A'}
+                </Text>
+              </>
+            )}
       </View>
 
       <View style={styles.actionsGrid}>
@@ -140,11 +141,11 @@ const HomeScreen = ({ navigation }) => {
 
       <View style={styles.scheduleCard}>
         <Text style={styles.sectionTitle}>Today's Schedule</Text>
-        {schedule ? (
+        {schedule?.active_session ? (
           <View>
-            <Text style={styles.scheduleRow}>Route: {schedule.route || 'N/A'}</Text>
-            <Text style={styles.scheduleRow}>Start: {schedule.start_time || 'N/A'}</Text>
-            <Text style={styles.scheduleRow}>End: {schedule.end_time || 'N/A'}</Text>
+            <Text style={styles.scheduleRow}>Route: {schedule.active_session.trajet?.name || 'N/A'}</Text>
+            <Text style={styles.scheduleRow}>Start: {schedule.active_session.started_at ? new Date(schedule.active_session.started_at).toLocaleTimeString() : 'N/A'}</Text>
+            <Text style={styles.scheduleRow}>Status: {schedule.active_session.status || 'N/A'}</Text>
           </View>
         ) : (
           <Text style={styles.emptyText}>No schedule assigned</Text>

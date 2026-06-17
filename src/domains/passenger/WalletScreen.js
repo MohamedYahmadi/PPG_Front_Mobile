@@ -34,7 +34,11 @@ const WalletScreen = ({ navigation }) => {
     }
     setToppingUp(true);
     try {
-      const res = await api.post('/wallet/top-up/', { amount });
+      const res = await api.post('/wallet/top-up/', {
+        amount,
+        gateway: 'MOBILE',
+        payment_token: 'mobile-topup-' + Date.now(),
+      });
       Alert.alert('Success', `Topped up ${amount.toFixed(3)} TND`);
       setWallet(res.data);
       setTopUpAmount('10');

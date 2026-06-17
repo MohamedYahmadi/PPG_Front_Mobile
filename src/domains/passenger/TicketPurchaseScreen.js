@@ -22,8 +22,8 @@ const TicketPurchaseScreen = ({ navigation }) => {
   const calculateFare = async () => {
     try {
       const res = await api.post('/tickets/fares/calculate/', {
-        zone: selectedZone,
-        quantity,
+        zone_validity: selectedZone,
+        category: 'STANDARD',
       });
       setFareInfo(res.data);
     } catch {}
@@ -32,16 +32,15 @@ const TicketPurchaseScreen = ({ navigation }) => {
   const handlePurchase = async () => {
     setLoading(true);
     try {
-      const tickets = [];
+      let lastRes = null;
       for (let i = 0; i < quantity; i++) {
-        tickets.push({
+        lastRes = await api.post('/tickets/purchase/', {
           zone_validity: selectedZone,
           price: selectedFare.price,
         });
       }
-      const res = await api.post('/tickets/purchase/', quantity > 1 ? tickets : tickets[0]);
       Alert.alert('Success', `Purchased ${quantity} ticket(s) for ${total.toFixed(3)} TND`, [
-        { text: 'View Ticket', onPress: () => navigation.navigate('QRDisplay', { ticket: res.data }) },
+        { text: 'View Ticket', onPress: () => navigation.navigate('QRDisplay', { ticket: lastRes?.data }) },
         { text: 'OK' },
       ]);
     } catch (error) {

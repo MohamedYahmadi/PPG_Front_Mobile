@@ -60,12 +60,12 @@ const HomeScreen = ({ navigation }) => {
             longitudeDelta: 0.05,
           }}
         >
-          {vehicles.map((v, i) => (
+           {vehicles.map((v, i) => (
             <Marker
               key={v.id || i}
               coordinate={{
-                latitude: parseFloat(v.latitude) || 36.8065,
-                longitude: parseFloat(v.longitude) || 10.1815,
+                latitude: parseFloat(v.lat) || 36.8065,
+                longitude: parseFloat(v.lng) || 10.1815,
               }}
               title={v.plate_number || `Bus #${i + 1}`}
               pinColor="#00a8ff"
@@ -110,11 +110,11 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         trajets.slice(0, 5).map((trajet) => (
           <View key={trajet.id} style={styles.routeCard}>
-            <View style={[styles.routeColor, { backgroundColor: trajet.line?.color || '#00a8ff' }]} />
+            <View style={[styles.routeColor, { backgroundColor: trajet.line?.color_code || '#00a8ff' }]} />
             <View style={styles.routeInfo}>
               <Text style={styles.routeName}>{trajet.line?.name || `Route #${trajet.id}`}</Text>
               <Text style={styles.routeStations}>
-                {trajet.start_station_name || 'Start'} → {trajet.end_station_name || 'End'}
+                {trajet.start_station?.name || 'Start'} → {trajet.end_station?.name || 'End'}
               </Text>
             </View>
           </View>
